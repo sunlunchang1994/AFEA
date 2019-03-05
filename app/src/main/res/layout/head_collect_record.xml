@@ -1,0 +1,31 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_title"
+    android:layout_width="match_parent"
+    android:layout_height="36dp"
+    android:minHeight="36dp"
+    android:paddingBottom="2dp"
+    android:paddingLeft="@dimen/content_padding_def"
+    android:paddingRight="@dimen/content_padding_def"
+    android:paddingTop="2dp">
+
+    <TextView
+        style="@style/CollectRecordTextStyle"
+        android:text="@string/label_friend_name"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        style="@style/CollectRecordTextStyle"
+        android:text="@string/label_operate_type"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        style="@style/CollectRecordTextStyle"
+        android:text="@string/label_operate_result"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        style="@style/CollectRecordTextStyle"
+        android:text="@string/label_operate_time"
+        android:textColor="@android:color/white" />
+
+</LinearLayout>

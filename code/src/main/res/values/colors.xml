@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="textColorLight">#FFFFFFFF</color>
+    <color name="textColorDark">#FF212121</color>
+    <color name="colorHighlightBack">#1effffff</color>
+    <color name="colorDarkBack">#1e000000</color>
+
+    <color name="background_tab_pressed">#1e000000</color>
+</resources>

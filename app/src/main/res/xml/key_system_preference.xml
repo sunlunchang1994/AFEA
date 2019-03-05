@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen>
+    <PreferenceCategory xmlns:android="http://schemas.android.com/apk/res/android"
+        android:title="@string/app_main_switch">
+        <SwitchPreference
+            android:key="@string/pref_main_switch"
+            android:summary="@string/label_main_switch_summary"
+            android:title="@string/app_main_switch" />
+    </PreferenceCategory>
+    <PreferenceCategory xmlns:android="http://schemas.android.com/apk/res/android"
+        android:title="@string/app_child_switch">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="@string/pref_main_switch"
+            android:key="@string/pref_auto_collect_energy"
+            android:title="@string/label_auto_collect_energy" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="@string/pref_main_switch"
+            android:key="@string/pref_auto_help_collect"
+            android:title="@string/label_auto_help_collect" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="@string/pref_main_switch"
+            android:key="@string/pref_collect_energy_notification"
+            android:title="@string/label_collect_energy_notification" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="@string/pref_main_switch"
+            android:key="@string/pref_save_collect_record"
+            android:title="@string/label_save_collect_record" />
+        <Preference
+            android:dependency="@string/pref_save_collect_record"
+            android:key="@string/pref_look_collect_record"
+            android:title="@string/label_look_collect_record">
+            <intent
+                android:targetClass="com.slc.afea.ui.activity.CollectRecordActivity"
+                android:targetPackage="com.slc.afea" />
+        </Preference>
+    </PreferenceCategory>
+    <PreferenceCategory xmlns:n8="http://schemas.android.com/apk/res/android"
+        n8:title="@string/title_about">
+        <Preference
+            n8:summary="on the way"
+            n8:title="@string/title_author" />
+        <Preference
+            n8:key="@string/pref_key_donate"
+            n8:summary="@string/label_donate_summary"
+            n8:title="@string/title_donate" />
+        <Preference
+            n8:summary="@string/title_exchange_summary"
+            n8:title="@string/title_exchange" />
+    </PreferenceCategory>
+</PreferenceScreen>

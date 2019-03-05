@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="36dp"
+    android:foreground="?attr/selectableItemBackground"
+    android:paddingBottom="2dp"
+    android:paddingLeft="@dimen/content_padding_def"
+    android:paddingRight="@dimen/content_padding_def"
+    android:paddingTop="2dp">
+
+    <TextView
+        android:id="@+id/tv_friend_name"
+        style="@style/CollectRecordTextStyle"
+        android:text="@string/label_friend_name" />
+
+    <TextView
+        android:id="@+id/tv_operate_type"
+        style="@style/CollectRecordTextStyle"
+        android:text="@string/label_operate_type" />
+
+    <TextView
+        android:id="@+id/tv_operate_result"
+        style="@style/CollectRecordTextStyle"
+        android:text="@string/label_operate_result" />
+
+    <TextView
+        android:id="@+id/tv_operate_time"
+        style="@style/CollectRecordTextStyle"
+        android:text="@string/label_operate_time" />
+
+</LinearLayout>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <drawable name="drawable_highlight_back">#1effffff</drawable>
+    <drawable name="drawable_dark_back">#20000000</drawable>
+    <drawable name="widget_normal">#00000000</drawable>
+</resources>

@@ -1,0 +1,157 @@
+<resources>
+    <!--自定义ToolBar-->
+    <style name="CustomToolbar" parent="Widget.AppCompat.Toolbar">
+        <!-- <item name="contentInsetStart">0dp</item>-->
+        <item name="contentInsetStartWithNavigation">0dp</item>
+        <item name="titleTextAppearance">@style/ToolbarTitle</item>
+        <item name="subtitleTextAppearance">@style/ToolbarSubTitle</item>
+        <item name="popupTheme">@style/AppTheme.PopupOverlay.Light</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
+
+    <style name="AppTheme.AppBarOverlay.Dark" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <!--toolBar更多设置style-->
+    <style name="AppTheme.PopupOverlay.Light" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AppTheme.PopupOverlay.Dark" parent="ThemeOverlay.AppCompat.Dark" />
+    <!--工具栏字体设置-->
+    <style name="ToolbarTitle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">@dimen/action_bar_title_size</item>
+        <item name="android:gravity">center</item>
+    </style>
+    <!--工具栏小标题字体大小-->
+    <style name="ToolbarSubTitle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+        <item name="android:textSize">@dimen/action_bar_sub_title_size</item>
+    </style>
+
+    <!--activity切换动画-->
+    <style name="ActivityChangeAnim" parent="@android:style/Animation.Activity">
+        <!--A到B,B进入动画-->
+        <!--A到B,A退出动画-->
+        <!--B回到A,A进入动画-->
+        <!--B回到A,B退出动画-->
+        <item name="android:activityOpenEnterAnimation">@anim/activity_open_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/activity_open_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/activity_close_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/activity_close_exit</item>
+    </style>
+
+    <!--popupWindow动画-->
+    <style name="PwBottomAnimStyle">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowEnterAnimation">@anim/pw_bottom_enter_move_up</item>
+        <item name="android:windowExitAnimation">@anim/pw_bottom_exit_move_down</item>
+    </style>
+
+    <!--宽和高都是wrap_content-->
+    <style name="WWLayout">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <!--宽和高都是match_parent-->
+    <style name="MMLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+    <!--宽是match_parent高是wrap_content-->
+    <style name="MWLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <!--宽是wrap_content高是match_parent-->
+    <style name="WMLayout">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+    <!--宽是match_parent高是0权重是1-->
+    <style name="MZWLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+    <!--宽是0高是match_parent权重是1-->
+    <style name="ZMWLayout">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+    <!--宽是wrap_content高是0权重是1-->
+    <style name="WZWLayout">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+    <!--宽是0高是wrap_content权重是1-->
+    <style name="ZWWLayout">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+    <!--水平线性布局宽高wrap_content-->
+    <style name="LinearLayoutHorizontalWW" parent="WWLayout">
+        <item name="android:orientation">horizontal</item>
+    </style>
+    <!--垂直线性布局宽高wrap_content-->
+    <style name="LinearLayoutVerticalWW" parent="WWLayout">
+        <item name="android:orientation">vertical</item>
+    </style>
+    <!--水平线性布局宽高match_parent-->
+    <style name="LinearLayoutHorizontalMM" parent="MMLayout">
+        <item name="android:orientation">horizontal</item>
+    </style>
+    <!--垂直线性布局宽高match_parent-->
+    <style name="LinearLayoutVerticalMM" parent="MMLayout">
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <!--水平线性布局宽是match_parent高是wrap_content-->
+    <style name="LinearLayoutHorizontalMW" parent="MWLayout">
+        <item name="android:orientation">horizontal</item>
+    </style>
+    <!--垂直线性布局宽是wrap_content高是match_parent-->
+    <style name="LinearLayoutVerticalMW" parent="MWLayout">
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <!--水平线性布局宽是match_parent高是wrap_content-->
+    <style name="LinearLayoutHorizontalWM" parent="WMLayout">
+        <item name="android:orientation">horizontal</item>
+    </style>
+    <!--垂直线性布局宽是wrap_content高是match_parent-->
+    <style name="LinearLayoutVerticalWM" parent="WMLayout">
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <!--水平线性布局宽是宽是match_parent高是0权重是1-->
+    <style name="LinearLayoutHorizontalMZW" parent="MZWLayout">
+        <item name="android:orientation">horizontal</item>
+    </style>
+    <!--水平线性布局宽是0高是match_parent权重是1-->
+    <style name="LinearLayoutHorizontalZMW" parent="ZMWLayout">
+        <item name="android:orientation">horizontal</item>
+    </style>
+    <!--垂直线性布局宽是宽是match_parent高是0权重是1-->
+    <style name="LinearLayoutVerticalMZW" parent="MZWLayout">
+        <item name="android:orientation">vertical</item>
+    </style>
+    <!--垂直线性布局宽是0高是match_parent权重是1-->
+    <style name="LinearLayoutVerticalZMW" parent="ZMWLayout">
+        <item name="android:orientation">vertical</item>
+    </style>
+    <!--水平线性布局宽是宽是wrap_content高是0权重是1-->
+    <style name="LinearLayoutHorizontalWZW" parent="WZWLayout">
+        <item name="android:orientation">horizontal</item>
+    </style>
+    <!--水平线性布局宽是0高是wrap_content权重是1-->
+    <style name="LinearLayoutHorizontalZWW" parent="ZWWLayout">
+        <item name="android:orientation">horizontal</item>
+    </style>
+    <!--垂直线性布局宽是宽是wrap_content高是0权重是1-->
+    <style name="LinearLayoutVerticalWZW" parent="WZWLayout">
+        <item name="android:orientation">vertical</item>
+    </style>
+    <!--垂直线性布局宽是0高是wrap_content权重是1-->
+    <style name="LinearLayoutVerticalZWW" parent="ZWWLayout">
+        <item name="android:orientation">vertical</item>
+    </style>
+</resources>

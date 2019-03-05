@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="action_bar_size">48dp</dimen>
+    <dimen name="action_bar_title_size">18sp</dimen>
+    <dimen name="action_bar_sub_title_size">12sp</dimen>
+    <dimen name="prediction_system_ui_def_size">24dp</dimen>
+    <dimen name="toolbar_view_custom_def_action_size">40dp</dimen>
+    <dimen name="toolbar_view_custom_def_layout_margin">96dp</dimen>
+    <dimen name="content_padding_def">16dp</dimen>
+</resources>
