@@ -205,7 +205,7 @@ public class AliMobileAutoCollectEnergyManager {
                 XposedBridge.log("已是最后一页");
                 return false;
             }
-            XposedBridge.log("好友数据" + str);
+            //XposedBridge.log("好友数据" + str);
             HashMap<String, Long> canCollectLaterTimeMap = null;
             boolean collectEnergyNotificationSwitch = findSwitchByKey(Constant.PREF_COLLECT_ENERGY_NOTIFICATION);
             if (collectEnergyNotificationSwitch) {
@@ -308,7 +308,7 @@ public class AliMobileAutoCollectEnergyManager {
      * @param str
      */
     private void autoGetCanCollectBubbleIdList(ClassLoader classLoader, String str) {
-        XposedBridge.log("个人中心" + str);
+        //XposedBridge.log("个人中心" + str);
         if (!TextUtils.isEmpty(str) && str.contains("collectStatus")) {
             try {
                 JSONObject jSONObject = new JSONObject(str);
@@ -518,7 +518,7 @@ public class AliMobileAutoCollectEnergyManager {
     private void throwableLog(String tag, Throwable e) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(tag);
-        stringBuilder.append(Log.getStackTraceString(e));
+        stringBuilder.append(/*Log.getStackTraceString(e)*/ e.getMessage());
         XpLog.log(stringBuilder.toString());
     }
 
@@ -539,20 +539,28 @@ public class AliMobileAutoCollectEnergyManager {
                     addSendInfo(Constant.Ga.KEY_BG_AUTO_COLLECT, isExist);
                     addSendInfo(Constant.Ga.KEY_BG_COLLECT_TOKEN, extrasBundle.getString(Constant.Ga.KEY_BG_COLLECT_TOKEN));
                     if (isExist) {
-                        new Thread(() -> {
-                            XpLog.log("页面存在开始收取");
-                            AliMobileAutoCollectEnergyManager.getInstance().rpcCall_CanCollectEnergy(rootClassLoader, extrasBundle.getString(Constant.Ga.KEY_BG_COLLECT_USER_ID));
-                        }).start();
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                super.run();
+                                XpLog.log("页面存在开始收取");
+                                AliMobileAutoCollectEnergyManager.getInstance().rpcCall_CanCollectEnergy(rootClassLoader, extrasBundle.getString(Constant.Ga.KEY_BG_COLLECT_USER_ID));
+                            }
+                        }.start();
                     }
                     return true;
                 } else if (Constant.Ga.KEY_BG_COLLECT_TIMING.equals(extraKey)) {
                     XpLog.log("定时任务");
                     if (activityStatus == AS_EXIST) {
                         pageCount = 0;
-                        new Thread(() -> {
-                            AliMobileAutoCollectEnergyManager.getInstance().rpcCall_FriendRankList(rootClassLoader);
-                            AliMobileAutoCollectEnergyManager.getInstance().rpcCall_CanCollectEnergy(rootClassLoader, myUserId);
-                        }).start();
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                super.run();
+                                AliMobileAutoCollectEnergyManager.getInstance().rpcCall_CanCollectEnergy(rootClassLoader, myUserId);
+                                AliMobileAutoCollectEnergyManager.getInstance().rpcCall_FriendRankList(rootClassLoader);
+                            }
+                        }.start();
                     }
                     return false;
                 }

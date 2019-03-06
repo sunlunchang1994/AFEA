@@ -55,6 +55,7 @@ public class SystemUIManager /*extends XC_MethodHook */ {
      * @param context
      */
     private void onCreate(Context context) {
+        XpLog.log("创建通知栏服务");
         if (timerAccurate == null) {
             timerAccurate = new Timer();
         }
@@ -74,6 +75,7 @@ public class SystemUIManager /*extends XC_MethodHook */ {
      * 销毁
      */
     private void onDestroy(Context context) {
+        XpLog.log("关闭通知栏服务");
         stopTimerAccurate();
         stopTimerTiming();
         try {
