@@ -22,13 +22,16 @@
     <string name="label_auto_help_collect">自动帮助好友收集能量</string>
     <string name="label_auto_help_collect_summary">进入蚂蚁森林后自动帮助好友收集能量</string>
     <string name="pref_auto_help_collect">pref_auto_switch_help_collect</string>
-    <string name="label_collect_energy_notification">接收有可收取能量通知</string>
+    <string name="label_collect_energy_notification">自动收取失败时发送通知</string>
     <string name="label_collect_energy_notification_summary">当好友能量成熟时，发送通知进行提醒</string>
     <string name="pref_collect_energy_notification">pref_collect_energy_notification</string>
     <string name="label_save_collect_record">保存收集记录</string>
     <string name="pref_save_collect_record">pref_save_collect_record</string>
     <string name="label_look_collect_record">查看收集记录</string>
+    <string name="label_bg_collect_interval">后台自动收取时间间隔</string>
+    <string name="label_x_min">%1$s分钟</string>
     <string name="pref_look_collect_record">pref_look_collect_record</string>
+    <string name="pref_bg_collect_interval">pref_bg_collect_interval</string>
     <string name="title_about">关于</string>
     <string name="title_alipay">支付宝</string>
     <string name="title_donate">捐赠</string>

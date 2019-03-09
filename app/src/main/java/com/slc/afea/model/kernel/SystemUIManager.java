@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -38,7 +39,6 @@ public class SystemUIManager /*extends XC_MethodHook */ {
     private int PUSH_NOTIFICATION_ID = 0;
     private Handler mHandler;
     private Set<String> tokenSet = new HashSet<>();
-    private Timer timerAccurate, timerTiming;
     private SystemUIBroadcastReceiver systemUIBroadcastReceiver;
 
     private static class Holder {
@@ -56,19 +56,11 @@ public class SystemUIManager /*extends XC_MethodHook */ {
      */
     private void onCreate(Context context) {
         XpLog.log("创建通知栏服务");
-        if (timerAccurate == null) {
-            timerAccurate = new Timer();
-        }
-        if (timerTiming == null) {
-            timerTiming = new Timer();
-        }
         mHandler = new Handler(context.getMainLooper());
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constant.Ga.ACTION_COLLECT_LATER_TIME_NOTIFICATION);
-        intentFilter.addAction(Constant.Ga.ACTION_REQUEST_ACTION_INFO);
         systemUIBroadcastReceiver = new SystemUIBroadcastReceiver();
         context.registerReceiver(systemUIBroadcastReceiver, intentFilter);
-        startTimerTiming(context);
     }
 
     /**
@@ -76,8 +68,6 @@ public class SystemUIManager /*extends XC_MethodHook */ {
      */
     private void onDestroy(Context context) {
         XpLog.log("关闭通知栏服务");
-        stopTimerAccurate();
-        stopTimerTiming();
         try {
             mHandler.removeCallbacksAndMessages(null);
             context.unregisterReceiver(systemUIBroadcastReceiver);
@@ -86,61 +76,10 @@ public class SystemUIManager /*extends XC_MethodHook */ {
         }
     }
 
-    private void stopTimerAccurate() {
-        try {
-            if (timerAccurate != null) {
-                timerAccurate.cancel();
-                timerAccurate = null;
-            }
-        } catch (Exception e) {
-
-        }
-    }
-
-    private void stopTimerTiming() {
-        try {
-            if (timerTiming != null) {
-                timerTiming.cancel();
-                timerTiming = null;
-            }
-        } catch (Exception e) {
-
-        }
-    }
-    private void startTimerTiming(Context context){
-        timerTiming.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                mHandler.post(()->{
-                    systemUIBroadcastReceiver.addSendInfo(Constant.Ga.KEY_BG_COLLECT_TIMING);
-                    systemUIBroadcastReceiver.sendMsg(context);
-                });
-            }
-        },20000,300000);
-    }
-    private class SystemUIBroadcastReceiver extends ImmediatelyBroadcastReceiver {
-        private SystemUIBroadcastReceiver() {
-            super(Constant.Ga.ACTION_RESULT_ACTION_INFO, Constant.Ga.ACTION_REQUEST_ACTION_INFO);
-        }
+    private class SystemUIBroadcastReceiver extends BroadcastReceiver {
 
         @Override
-        public boolean handlerMsg(Set<String> extraKeySet, Bundle extrasBundle) {
-            for (String extraKey : extraKeySet) {
-                if (Constant.Ga.KEY_BG_AUTO_COLLECT.equals(extraKey)) {
-                    boolean isCollect = extrasBundle.getBoolean(extraKey, false);
-                    tokenSet.remove(extrasBundle.getString(Constant.Ga.KEY_BG_COLLECT_TOKEN));
-                    XpLog.log("开始收取回馈" + isCollect);
-                    if (!isCollect) {//TODO 是否收集
-                        XpLog.log("不在森林界面开始发送通知提醒用户");
-                        sendNotification(mContext);
-                    }
-                }
-            }
-            return false;
-        }
-
-        @Override
-        protected void onOtherReceive(Context context, Intent intent) {
+        public void onReceive(Context context, Intent intent) {
             if (Constant.Ga.ACTION_COLLECT_LATER_TIME_NOTIFICATION.equals(intent.getAction())) {
                 if (Constant.Ga.KEY_SEND_COLLECT_LATER_TIME.equals(intent.getStringExtra(Constant.Ga.EXTRA_KEY))) {
                     try {
@@ -175,7 +114,7 @@ public class SystemUIManager /*extends XC_MethodHook */ {
             String token = userId + "*" + timestamp;
             if (!tokenSet.contains(token)) {
                 tokenSet.add(token);
-                timerAccurate.schedule(new TimerTask() {
+                /*timerAccurate.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         mHandler.post(() -> {
@@ -193,7 +132,7 @@ public class SystemUIManager /*extends XC_MethodHook */ {
                             }
                         });
                     }
-                }, new Date(timestamp + 1000));
+                }, new Date(timestamp + 1000));*/
             }
         }
     }

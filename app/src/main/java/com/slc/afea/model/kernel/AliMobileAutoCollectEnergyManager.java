@@ -3,11 +3,13 @@ package com.slc.afea.model.kernel;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
+import android.app.LauncherActivity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -60,6 +62,7 @@ public class AliMobileAutoCollectEnergyManager {
     }
 
     private void initSwitchMap(Context context) {
+        TaskManager.getInstance().initTaskManager(context);
         RemotePreferences remotePreferences = new RemotePreferences(context, Constant.MAIN_SETTING_AUTHORITIES, Constant.APP_PREFERENCES_NAME);
         fillSwitchMap(remotePreferences.getAll());
         IntentFilter intentFilter = new IntentFilter();
@@ -87,9 +90,25 @@ public class AliMobileAutoCollectEnergyManager {
     }
 
     /**
+     * 初始化
+     *
+     * @param activity
+     */
+    private void onCreate(Activity activity) {
+        XpLog.log("H5界面初始化成功");
+        h5Activity = activity;
+    }
+
+    public void onResume(Activity activity) {
+        XpLog.log("H5界面恢复");
+        h5Activity = activity;
+    }
+
+    /**
      * 此处释放数据，界面已销毁
      */
     private void releaseData() {
+        XpLog.log("H5界面销毁");
         activityStatus = AS_INEXISTENCE;
     }
 
@@ -207,10 +226,11 @@ public class AliMobileAutoCollectEnergyManager {
             }
             //XposedBridge.log("好友数据" + str);
             HashMap<String, Long> canCollectLaterTimeMap = null;
-            boolean collectEnergyNotificationSwitch = findSwitchByKey(Constant.PREF_COLLECT_ENERGY_NOTIFICATION);
-            if (collectEnergyNotificationSwitch) {
+            //boolean collectEnergyNotificationSwitch = findSwitchByKey(Constant.PREF_COLLECT_ENERGY_NOTIFICATION);
+            canCollectLaterTimeMap = new HashMap<>();
+            /*if (collectEnergyNotificationSwitch) {
                 canCollectLaterTimeMap = new HashMap<>();
-            }
+            }*/
             while (i < optJSONArray.length()) {
                 JSONObject jSONObject = optJSONArray.getJSONObject(i);
                 String userId = jSONObject.optString("userId");
@@ -224,15 +244,19 @@ public class AliMobileAutoCollectEnergyManager {
                 if (canCollectEnergyOrHelpCollect && !canCollectEnergyOrHelpCollectUserIdList.contains(userId)) {
                     canCollectEnergyOrHelpCollectUserIdList.add(userId);
                 }
-                if (collectEnergyNotificationSwitch) {
+                Long canCollectLaterTime = jSONObject.optLong("canCollectLaterTime");
+                if (canCollectLaterTime > System.currentTimeMillis()) {
+                    canCollectLaterTimeMap.put(userId, canCollectLaterTime);
+                }
+                /*if (collectEnergyNotificationSwitch) {
                     Long canCollectLaterTime = jSONObject.optLong("canCollectLaterTime");
                     if (canCollectLaterTime > System.currentTimeMillis()) {
                         canCollectLaterTimeMap.put(userId, canCollectLaterTime);
                     }
-                }
+                }*/
                 i++;
             }
-            if (collectEnergyNotificationSwitch && !canCollectLaterTimeMap.isEmpty())
+            if (!canCollectLaterTimeMap.isEmpty())
                 sendCollectLaterTime(h5Activity, canCollectLaterTimeMap);
             return true;
         } catch (Exception unused) {
@@ -246,10 +270,11 @@ public class AliMobileAutoCollectEnergyManager {
      * @param canCollectLaterTimeMap
      */
     private void sendCollectLaterTime(Context context, HashMap<String, Long> canCollectLaterTimeMap) {
-        Intent intent = new Intent(Constant.Ga.ACTION_COLLECT_LATER_TIME_NOTIFICATION);
+        TaskManager.getInstance().setReminders(canCollectLaterTimeMap);
+        /*Intent intent = new Intent(Constant.Ga.ACTION_COLLECT_LATER_TIME_NOTIFICATION);
         intent.putExtra(Constant.Ga.EXTRA_KEY, Constant.Ga.KEY_SEND_COLLECT_LATER_TIME);
         intent.putExtra(Constant.Ga.KEY_SEND_COLLECT_LATER_TIME, canCollectLaterTimeMap);
-        context.sendBroadcast(intent);
+        context.sendBroadcast(intent);*/
     }
 
     /**
@@ -372,7 +397,7 @@ public class AliMobileAutoCollectEnergyManager {
      * @return
      */
     private boolean parseCollectEnergyResponse(String displayName, String str) {
-        XposedBridge.log("收集结果：" + str);
+        //XposedBridge.log("收集结果：" + str);
         if (!TextUtils.isEmpty(str) && str.contains("failedBubbleIds")) {
             try {
                 JSONObject jSONObject = new JSONObject(str);
@@ -449,10 +474,25 @@ public class AliMobileAutoCollectEnergyManager {
         return false;
     }
 
+    /**
+     * 保存记录
+     *
+     * @param name
+     * @param collect
+     * @param operateType
+     */
     private void saveCollectRecord(String name, int collect, int operateType) {
         saveCollectRecord(h5Activity, name, collect, operateType);
     }
 
+    /**
+     * 保存记录
+     *
+     * @param context
+     * @param name
+     * @param collect
+     * @param operateType
+     */
     private void saveCollectRecord(Context context, String name, int collect, int operateType) {
         ContentValues contentValues = new ContentValues();
         contentValues.put("TIME", System.currentTimeMillis());
@@ -522,6 +562,42 @@ public class AliMobileAutoCollectEnergyManager {
         XpLog.log(stringBuilder.toString());
     }
 
+    /**
+     * 后台自动
+     *
+     * @return
+     */
+    boolean bgAutoCollect(String userId) {
+        boolean isExist = activityStatus == AS_EXIST;
+        if (isExist) {
+            new Thread() {
+                @Override
+                public void run() {
+                    super.run();
+                    XpLog.log("页面存在开始收取");
+                    AliMobileAutoCollectEnergyManager.getInstance().rpcCall_CanCollectEnergy(rootClassLoader, userId);
+                }
+            }.start();
+        }
+        return isExist;
+    }
+
+    void bgCollectTiming() {
+        XpLog.log("定时任务准备");
+        if (activityStatus == AS_EXIST) {
+            XpLog.log("定时任务开始");
+            pageCount = 0;
+            new Thread() {
+                @Override
+                public void run() {
+                    super.run();
+                    AliMobileAutoCollectEnergyManager.getInstance().rpcCall_CanCollectEnergy(rootClassLoader, myUserId);
+                    AliMobileAutoCollectEnergyManager.getInstance().rpcCall_FriendRankList(rootClassLoader);
+                }
+            }.start();
+        }
+    }
+
     private class SwitchBroadcastReceiver extends ImmediatelyBroadcastReceiver {
         private SwitchBroadcastReceiver() {
             super(Constant.Ga.ACTION_REQUEST_ACTION_INFO, Constant.Ga.ACTION_RESULT_ACTION_INFO);
@@ -533,36 +609,6 @@ public class AliMobileAutoCollectEnergyManager {
             for (String extraKey : extraKeySet) {
                 if (Constant.Ga.KEY_GET_PREFERENCES_DATA.equals(extraKey)) {
                     fillSwitchMap((Map<String, ?>) extrasBundle.getSerializable(Constant.Ga.KEY_GET_PREFERENCES_DATA));
-                } else if (Constant.Ga.KEY_BG_AUTO_COLLECT.equals(extraKey)) {
-                    XpLog.log("开始接收收取信息");
-                    boolean isExist = activityStatus == AS_EXIST;
-                    addSendInfo(Constant.Ga.KEY_BG_AUTO_COLLECT, isExist);
-                    addSendInfo(Constant.Ga.KEY_BG_COLLECT_TOKEN, extrasBundle.getString(Constant.Ga.KEY_BG_COLLECT_TOKEN));
-                    if (isExist) {
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                super.run();
-                                XpLog.log("页面存在开始收取");
-                                AliMobileAutoCollectEnergyManager.getInstance().rpcCall_CanCollectEnergy(rootClassLoader, extrasBundle.getString(Constant.Ga.KEY_BG_COLLECT_USER_ID));
-                            }
-                        }.start();
-                    }
-                    return true;
-                } else if (Constant.Ga.KEY_BG_COLLECT_TIMING.equals(extraKey)) {
-                    XpLog.log("定时任务");
-                    if (activityStatus == AS_EXIST) {
-                        pageCount = 0;
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                super.run();
-                                AliMobileAutoCollectEnergyManager.getInstance().rpcCall_CanCollectEnergy(rootClassLoader, myUserId);
-                                AliMobileAutoCollectEnergyManager.getInstance().rpcCall_FriendRankList(rootClassLoader);
-                            }
-                        }.start();
-                    }
-                    return false;
                 }
             }
             return false;
@@ -656,11 +702,18 @@ public class AliMobileAutoCollectEnergyManager {
                 final ClassLoader classLoader = application.getClassLoader();
                 Class loadClass = classLoader.loadClass("com.alipay.mobile.nebulacore.ui.H5Activity");
                 if (loadClass != null) {
+                    XposedHelpers.findAndHookMethod(loadClass, "onCreate", Bundle.class, new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam methodHookParam) throws Throwable {
+                            super.afterHookedMethod(methodHookParam);
+                            AliMobileAutoCollectEnergyManager.getInstance().onCreate((Activity) methodHookParam.thisObject);
+                        }
+                    });
                     XposedHelpers.findAndHookMethod(loadClass, "onResume", new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam methodHookParam) throws Throwable {
                             super.afterHookedMethod(methodHookParam);
-                            AliMobileAutoCollectEnergyManager.getInstance().h5Activity = (Activity) methodHookParam.thisObject;
+                            AliMobileAutoCollectEnergyManager.getInstance().onResume((Activity) methodHookParam.thisObject);
                         }
                     });
                     XposedHelpers.findAndHookMethod(loadClass, "onDestroy", new XC_MethodHook() {

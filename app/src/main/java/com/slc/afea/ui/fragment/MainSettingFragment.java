@@ -1,8 +1,10 @@
 package com.slc.afea.ui.fragment;
 
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.SwitchPreference;
+import android.text.method.DigitsKeyListener;
 import android.widget.Toast;
 
 import com.slc.afea.R;
@@ -31,6 +33,7 @@ public class MainSettingFragment extends BasePreferenceFragment<MainSettingContr
         super.fromResourceBefore();
         Bundle bundle = getArguments();
         this.isAllowOpen = bundle.getBoolean(Constant.Ga.KEY_IS_ALLOW_OPEN);
+        this.isAllowOpen = true;
         MainSettingPresenterImp.initialize(this);
         getPresenter().init(bundle);
     }
@@ -45,6 +48,9 @@ public class MainSettingFragment extends BasePreferenceFragment<MainSettingContr
         findPreference(Constant.PREF_COLLECT_ENERGY_NOTIFICATION).setOnPreferenceChangeListener(this);
         findPreference(Constant.PREF_SAVE_COLLECT_RECORD).setOnPreferenceChangeListener(this);
         findPreference(Constant.PREF_KEY_DONATE).setOnPreferenceClickListener(this);
+        EditTextPreference bgCollectInterval = (EditTextPreference) findPreference(Constant.PREF_BG_COLLECT_INTERVAL);
+        bgCollectInterval.getEditText().setKeyListener(DigitsKeyListener.getInstance("1234567890"));
+        bgCollectInterval.setOnPreferenceChangeListener(this);
     }
 
     @Override
@@ -59,6 +65,10 @@ public class MainSettingFragment extends BasePreferenceFragment<MainSettingContr
             return this.isAllowOpen;
         } else if (preference instanceof SwitchPreference) {
             getPresenter().sendPreferenceChange(Constant.Ga.ACTION_PREF_SWITCH, key, newValue);
+        } else if (preference instanceof EditTextPreference) {
+            if (preference.getKey().equals(Constant.PREF_BG_COLLECT_INTERVAL)) {
+                //getPresenter().sendPreferenceChange(Constant.Ga.ACTION_PREF_SWITCH, key, newValue);
+            }
         }
         return true;
     }

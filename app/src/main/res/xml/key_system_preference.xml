@@ -37,6 +37,16 @@
                 android:targetClass="com.slc.afea.ui.activity.CollectRecordActivity"
                 android:targetPackage="com.slc.afea" />
         </Preference>
+        <EditTextPreference
+            android:dependency="@string/pref_save_collect_record"
+            android:key="@string/pref_bg_collect_interval"
+            android:summary="@string/label_x_min"
+            android:title="@string/label_bg_collect_interval"/>
+        <!--<Preference
+            android:dependency="@string/pref_save_collect_record"
+            android:key="@string/pref_bg_collect_interval"
+            android:summary="@string/label_x_min"
+            android:title="@string/label_bg_collect_interval" />-->
     </PreferenceCategory>
     <PreferenceCategory xmlns:n8="http://schemas.android.com/apk/res/android"
         n8:title="@string/title_about">

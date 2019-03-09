@@ -31,6 +31,7 @@ public class Constant {
     public static final String PREF_SAVE_COLLECT_RECORD = "pref_save_collect_record";
     public static final String PREF_LOOK_COLLECT_RECORD = "pref_look_collect_record";
     public static final String PREF_KEY_DONATE = "pref_key_donate";
+    public static final String PREF_BG_COLLECT_INTERVAL = "pref_bg_collect_interval";
     public static final String PREF_KEY_SORT = "sort";
 
     public static class Ga {

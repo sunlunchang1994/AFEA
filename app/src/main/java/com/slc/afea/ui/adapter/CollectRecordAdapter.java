@@ -33,8 +33,7 @@ public class CollectRecordAdapter extends CommonAdapter<CollectRecord> {
                 Color.argb(32, Color.red(colorPrimary), Color.green(colorPrimary), Color.blue(colorPrimary)),
                 Color.argb(32, Color.red(colorAccent), Color.green(colorAccent), Color.blue(colorAccent))
         };
-        operateTimeDateFormat = new SimpleDateFormat("HH:mm:SS");
-        //operateTimeDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        operateTimeDateFormat = new SimpleDateFormat("HH:mm:ss");
     }
 
     @Override
