@@ -56,6 +56,7 @@ public class AliMobileAutoCollectEnergyManager {
     private SwitchBroadcastReceiver switchBroadcastReceiver;
     private static ClassLoader rootClassLoader;
     private static String myUserId;
+    private PowerManager.WakeLock wakeLock;
 
     public AliMobileAutoCollectEnergyManager() {
         XposedBridge.log("**************AliMobileAutoCollectEnergyManager" + hashCode());
@@ -96,6 +97,9 @@ public class AliMobileAutoCollectEnergyManager {
      */
     private void onCreate(Activity activity) {
         XpLog.log("H5界面初始化成功");
+        PowerManager pm = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, activity.getComponentName().getClassName());
+        wakeLock.acquire();
         h5Activity = activity;
     }
 
@@ -109,6 +113,7 @@ public class AliMobileAutoCollectEnergyManager {
      */
     private void releaseData() {
         XpLog.log("H5界面销毁");
+        wakeLock.release();
         activityStatus = AS_INEXISTENCE;
     }
 

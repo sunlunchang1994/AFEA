@@ -59,7 +59,7 @@ public class TaskManager {
                     AliMobileAutoCollectEnergyManager.getInstance().bgCollectTiming();
                 });
             }
-        }, 20000, 180000);
+        }, 120000, 300000);
     }
 
     void setReminders(HashMap<String, Long> canCollectLaterTimeMap) {
