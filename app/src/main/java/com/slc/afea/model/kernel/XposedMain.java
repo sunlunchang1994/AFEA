@@ -51,16 +51,16 @@ public class XposedMain implements IXposedHookZygoteInit, IXposedHookLoadPackage
                     });
         } else if (loadPackageParam.packageName.equals("com.eg.android.AlipayGphone")) {
             AliMobileAutoCollectEnergyManager.hookDataEntrance(loadPackageParam.classLoader);
-        } else if (loadPackageParam.packageName.equals("com.android.systemui") && loadPackageParam.processName.equals("com.android.systemui")) {
+        } /*else if (loadPackageParam.packageName.equals("com.android.systemui") && loadPackageParam.processName.equals("com.android.systemui")) {
             SystemUIManager.initHook(loadPackageParam.classLoader);
-        }
+        }*/
     }
 
     @Override
     public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
         if (resparam.packageName.equals("com.android.systemui")) {
             XModuleResources modRes = XModuleResources.createInstance(MODULE_PATH, resparam.res);
-            SystemUIManager.getInstance().notificationIconRes = resparam.res.addResource(modRes, R.mipmap.ic_system_ui);
+            //SystemUIManager.getInstance().notificationIconRes = resparam.res.addResource(modRes, R.mipmap.ic_system_ui);
         }
     }
 

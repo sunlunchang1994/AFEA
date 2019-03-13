@@ -33,7 +33,7 @@ import de.robv.android.xposed.XposedHelpers;
 class ActionInfoManager extends XC_MethodHook {
     private boolean isOxygenOsRomOrH2OsRom = false;
     private boolean isLoadPreferences;//是否加载Preferences；
-    private Map<String, ?> allData;
+    private Map<String, Object> allData;
     private ContentResolver contentResolver;
 
     private static class Holder {
@@ -81,6 +81,7 @@ class ActionInfoManager extends XC_MethodHook {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(Constant.Ga.ACTION_REQUEST_ACTION_INFO);
             intentFilter.addAction(Constant.Ga.ACTION_COLLECT_RECORD_NOTIFICATION);
+            intentFilter.addAction(Constant.Ga.ACTION_PREF_SWITCH);
             context.registerReceiver(this.mBroadcastReceiver, intentFilter);
         } catch (Exception e) {
             XposedBridge.log(e);
@@ -95,7 +96,7 @@ class ActionInfoManager extends XC_MethodHook {
             if (!this.isLoadPreferences) {
                 if (!allData.isEmpty()) {
                     this.isLoadPreferences = true;
-                    this.allData = allData;
+                    this.allData = (Map<String, Object>) allData;
                 }
             }
         }
@@ -118,6 +119,16 @@ class ActionInfoManager extends XC_MethodHook {
                             XposedBridge.log("Toast异常" + Log.getStackTraceString(e1));
                         }
                     }
+                }
+            }
+            else if(Constant.Ga.ACTION_PREF_SWITCH.equals(intent.getAction())){
+                switch (intent.getIntExtra(Constant.Ga.EXTRA_VALUE_TYPE, -1)){
+                    case  Constant.Ga.ACTION_VALUE_TYPE_BOOLEAN:
+                        allData.put(intent.getStringExtra(Constant.Ga.EXTRA_KEY),intent.getBooleanExtra(Constant.Ga.EXTRA_VALUE, false));
+                        break;
+                    case Constant.Ga.ACTION_VALUE_TYPE_STRING:
+                        allData.put(intent.getStringExtra(Constant.Ga.EXTRA_KEY),intent.getStringExtra(Constant.Ga.EXTRA_VALUE));
+                        break;
                 }
             }
         }

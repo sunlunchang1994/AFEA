@@ -40,6 +40,7 @@
         <EditTextPreference
             android:dependency="@string/pref_save_collect_record"
             android:key="@string/pref_bg_collect_interval"
+            android:defaultValue="3"
             android:summary="@string/label_x_min"
             android:title="@string/label_bg_collect_interval"/>
         <!--<Preference

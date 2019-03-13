@@ -11,6 +11,13 @@ import com.slc.afea.model.Constant;
 import com.slc.code.contract.MvpContract;
 import com.slc.code.presenter.MvpPresenterImp;
 
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.slc.code.receiver.ImmediatelyBroadcastReceiver.EXTRA_KEY_LIST;
+import static com.slc.code.receiver.ImmediatelyBroadcastReceiver.EXTRA_VALUE_BUNDLE;
+
 /**
  * Created by achang on 2019/1/11.
  */
@@ -63,5 +70,29 @@ public class MainSettingPresenterImp extends MvpPresenterImp<MainSettingContract
             intent.setData(Uri.parse(payUrl));
         }
         getContext().startActivity(intent);
+    }
+
+    @Override
+    public Object getValueByKey(String key, Object defValue) {
+        Object value = this.sharedPreferences.getAll().get(key);
+        return value == null ? defValue : value;
+    }
+
+    @Override
+    public void sendAllData() {
+        getContext().post(new Runnable() {
+            @Override
+            public void run() {
+                Set<String> extraKeySet = new HashSet<>();
+                extraKeySet.add(Constant.Ga.KEY_GET_PREFERENCES_DATA);
+                Bundle extrasBundle = new Bundle();
+                extrasBundle.putSerializable(Constant.Ga.KEY_GET_PREFERENCES_DATA, (Serializable) sharedPreferences.getAll());
+                Intent intent = new Intent(Constant.Ga.ACTION_RESULT_ACTION_INFO);
+                intent.putExtra(EXTRA_KEY_LIST, (Serializable) extraKeySet);
+                intent.putExtras(extrasBundle);
+                getContext().sendBroadcast(intent);
+            }
+        });
+
     }
 }

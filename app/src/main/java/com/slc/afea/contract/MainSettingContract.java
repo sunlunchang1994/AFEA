@@ -18,6 +18,11 @@ public interface MainSettingContract {
         void init(Bundle bundle);
 
         void sendPreferenceChange(String str, String str2, Object obj);
+
         void startDonateUi();
+
+        Object getValueByKey(String key, Object defValue);
+
+        void sendAllData();
     }
 }

@@ -1,11 +1,14 @@
 package com.slc.afea.model.kernel;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
@@ -29,7 +32,9 @@ public class TaskManager {
     private int PUSH_NOTIFICATION_ID = 0;
     private Handler mHandler;
     private Set<String> tokenSet = new HashSet<>();
-    private Timer timerAccurate, timerTiming;
+    private Timer timerAccurate/*, timerTiming*/;
+    private AlarmManager mAlarmManager;
+    private PendingIntent pIntent;
 
     private static class Holder {
         private static final TaskManager INSTANCE = new TaskManager();
@@ -44,22 +49,60 @@ public class TaskManager {
         if (timerAccurate == null) {
             timerAccurate = new Timer();
         }
-        if (timerTiming == null) {
+        /*if (timerTiming == null) {
             timerTiming = new Timer();
-        }
+        }*/
         mHandler = new Handler(context.getMainLooper());
-        startTimerTiming();
+        startTimerTiming(context);
     }
 
-    private void startTimerTiming() {
-        timerTiming.schedule(new TimerTask() {
+    private void startTimerTiming(Context context) {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Constant.Ga.ACTION_COLLECT_TIMING_NOTIFICATION);
+        context.registerReceiver(new AlarmReceiver(), intentFilter);
+
+        Intent intent = new Intent(Constant.Ga.ACTION_COLLECT_TIMING_NOTIFICATION);
+        pIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        repeatAlarm();
+        /*timerTiming.schedule(new TimerTask() {
             @Override
             public void run() {
                 mHandler.post(() -> {
                     AliMobileAutoCollectEnergyManager.getInstance().bgCollectTiming();
                 });
             }
-        }, 120000, 300000);
+        }, 120000, 300000);*/
+    }
+
+    private void repeatAlarm() {
+        // 取消原有的定时任务
+        long timingTemp = AliMobileAutoCollectEnergyManager.getInstance().getTimingValue();
+        XpLog.log("定时开始" + timingTemp);
+        mAlarmManager.cancel(pIntent);
+        // 开启新的定时任务
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mAlarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + timingTemp, pIntent);
+        } else {
+            mAlarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + timingTemp, pIntent);
+        }
+    }
+
+    // 定义一个定时广播的接收器
+    public class AlarmReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            XpLog.log("接收广播");
+            if (Constant.Ga.ACTION_COLLECT_TIMING_NOTIFICATION.equals(intent.getAction())) {
+                if (mHandler != null) {
+                    mHandler.post(() -> {
+                        XpLog.log("发送收取");
+                        AliMobileAutoCollectEnergyManager.getInstance().bgCollectTiming();
+                        repeatAlarm();
+                    });
+                }
+            }
+        }
     }
 
     void setReminders(HashMap<String, Long> canCollectLaterTimeMap) {

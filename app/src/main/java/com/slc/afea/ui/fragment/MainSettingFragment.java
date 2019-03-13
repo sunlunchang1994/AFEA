@@ -33,7 +33,6 @@ public class MainSettingFragment extends BasePreferenceFragment<MainSettingContr
         super.fromResourceBefore();
         Bundle bundle = getArguments();
         this.isAllowOpen = bundle.getBoolean(Constant.Ga.KEY_IS_ALLOW_OPEN);
-        this.isAllowOpen = true;
         MainSettingPresenterImp.initialize(this);
         getPresenter().init(bundle);
     }
@@ -51,6 +50,7 @@ public class MainSettingFragment extends BasePreferenceFragment<MainSettingContr
         EditTextPreference bgCollectInterval = (EditTextPreference) findPreference(Constant.PREF_BG_COLLECT_INTERVAL);
         bgCollectInterval.getEditText().setKeyListener(DigitsKeyListener.getInstance("1234567890"));
         bgCollectInterval.setOnPreferenceChangeListener(this);
+        bgCollectInterval.setSummary(getString(R.string.label_x_min, getPresenter().getValueByKey(Constant.PREF_BG_COLLECT_INTERVAL, "3").toString()));
     }
 
     @Override
@@ -67,7 +67,8 @@ public class MainSettingFragment extends BasePreferenceFragment<MainSettingContr
             getPresenter().sendPreferenceChange(Constant.Ga.ACTION_PREF_SWITCH, key, newValue);
         } else if (preference instanceof EditTextPreference) {
             if (preference.getKey().equals(Constant.PREF_BG_COLLECT_INTERVAL)) {
-                //getPresenter().sendPreferenceChange(Constant.Ga.ACTION_PREF_SWITCH, key, newValue);
+                getPresenter().sendPreferenceChange(Constant.Ga.ACTION_PREF_SWITCH, key, newValue);
+                preference.setSummary(getString(R.string.label_x_min, newValue));
             }
         }
         return true;

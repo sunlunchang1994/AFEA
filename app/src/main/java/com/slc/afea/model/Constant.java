@@ -59,6 +59,7 @@ public class Constant {
         public static final String ACTION_PREF_SWITCH = PACKAGE_NAME + ".ACTION_PREF_SWITCH";
         public static final String ACTION_COLLECT_RECORD_NOTIFICATION = PACKAGE_NAME + ".COLLECT_RECORD_NOTIFICATION";
         public static final String ACTION_COLLECT_LATER_TIME_NOTIFICATION = PACKAGE_NAME + ".COLLECT_LATER_TIME_NOTIFICATION";
+        public static final String ACTION_COLLECT_TIMING_NOTIFICATION = PACKAGE_NAME + ".COLLECT_TIMING_NOTIFICATION";
         public static final String ACTION_COLLECT_ENERGY_NOTIFICATION_CLICK = PACKAGE_NAME + ".COLLECT_ENERGY_NOTIFICATION_CLICK";
         public static final String ACTION_START_ANT_UI = PACKAGE_NAME + ".START_ANT_UI";
         public static final String KEY_ID_ANT = "60000002";

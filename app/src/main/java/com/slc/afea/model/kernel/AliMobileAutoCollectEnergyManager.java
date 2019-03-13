@@ -3,7 +3,6 @@ package com.slc.afea.model.kernel;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
-import android.app.LauncherActivity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +11,6 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.slc.afea.database.DaoConstant;
 import com.slc.afea.model.Constant;
@@ -52,18 +50,16 @@ public class AliMobileAutoCollectEnergyManager {
     private Activity h5Activity;
     private int pageCount = 0;
     private int activityStatus = AS_INEXISTENCE;
-    private Map<String, Boolean> switchMap = new HashMap<>();
+    private Map<String, Object> switchMap = new HashMap<>();
     private SwitchBroadcastReceiver switchBroadcastReceiver;
     private static ClassLoader rootClassLoader;
     private static String myUserId;
-    private PowerManager.WakeLock wakeLock;
 
     public AliMobileAutoCollectEnergyManager() {
         XposedBridge.log("**************AliMobileAutoCollectEnergyManager" + hashCode());
     }
 
     private void initSwitchMap(Context context) {
-        TaskManager.getInstance().initTaskManager(context);
         RemotePreferences remotePreferences = new RemotePreferences(context, Constant.MAIN_SETTING_AUTHORITIES, Constant.APP_PREFERENCES_NAME);
         fillSwitchMap(remotePreferences.getAll());
         IntentFilter intentFilter = new IntentFilter();
@@ -77,16 +73,17 @@ public class AliMobileAutoCollectEnergyManager {
             switchBroadcastReceiver.addSendInfo(Constant.Ga.KEY_GET_PREFERENCES_DATA);
             switchBroadcastReceiver.sendMsg(context);
         }
+        TaskManager.getInstance().initTaskManager(context);
     }
 
     private void fillSwitchMap(Map<String, ?> objectMap) {
         if (objectMap != null && !objectMap.isEmpty()) {
             for (Map.Entry<String, ?> entry : objectMap.entrySet()) {
-                if (entry.getValue() != null && entry.getValue() instanceof Boolean) {
-                    Boolean value = (Boolean) entry.getValue();
-                    switchMap.put(entry.getKey(), value == null ? false : value);
+                if (entry.getValue() != null) {
+                    switchMap.put(entry.getKey(), entry.getValue());
                 }
             }
+            XpLog.log("开始初始化数据");
         }
     }
 
@@ -96,15 +93,10 @@ public class AliMobileAutoCollectEnergyManager {
      * @param activity
      */
     private void onCreate(Activity activity) {
-        XpLog.log("H5界面初始化成功");
-        PowerManager pm = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
-        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, activity.getComponentName().getClassName());
-        wakeLock.acquire();
         h5Activity = activity;
     }
 
     public void onResume(Activity activity) {
-        XpLog.log("H5界面恢复");
         h5Activity = activity;
     }
 
@@ -112,8 +104,6 @@ public class AliMobileAutoCollectEnergyManager {
      * 此处释放数据，界面已销毁
      */
     private void releaseData() {
-        XpLog.log("H5界面销毁");
-        wakeLock.release();
         activityStatus = AS_INEXISTENCE;
     }
 
@@ -123,10 +113,39 @@ public class AliMobileAutoCollectEnergyManager {
      * @param key
      * @return
      */
-    private boolean findSwitchByKey(String key) {
-        Boolean value = switchMap.get(key);
-        return value == null ? false : value;
+    private boolean findBooleanByKey(String key) {
+        return findBooleanByKey(key, false);
     }
+
+    private boolean findBooleanByKey(String key, boolean defValue) {
+        Boolean value = (Boolean) findDataByObj(key);
+        return value == null ? defValue : value;
+    }
+
+    /**
+     * 根据key查找字符串
+     *
+     * @param key
+     * @return
+     */
+    private String findStringByKey(String key) {
+        return (String) findDataByObj(key);
+    }
+
+    private Object findDataByObj(String key) {
+        return switchMap.get(key);
+    }
+
+    long getTimingValue() {
+        String value = findStringByKey(Constant.PREF_BG_COLLECT_INTERVAL);
+        try {
+            int valueInt = Integer.parseInt(value);
+            return valueInt == 0 ? 3 * 60000 : valueInt * 60000;
+        } catch (Exception e) {
+            return 3 * 60000;
+        }
+    }
+
 
     /**
      * 是否为好友列表
@@ -207,7 +226,7 @@ public class AliMobileAutoCollectEnergyManager {
             if (collectedEnergy != 0 || helpCollect != 0) {
                 showToast(stringBuilder.toString());
             }
-            XposedBridge.log("結束");
+            XposedBridge.log("結束："+collectedEnergy+"*"+helpCollect);
             collectedEnergy = 0;
             helpCollect = 0;
             return;
@@ -231,7 +250,7 @@ public class AliMobileAutoCollectEnergyManager {
             }
             //XposedBridge.log("好友数据" + str);
             HashMap<String, Long> canCollectLaterTimeMap = null;
-            //boolean collectEnergyNotificationSwitch = findSwitchByKey(Constant.PREF_COLLECT_ENERGY_NOTIFICATION);
+            //boolean collectEnergyNotificationSwitch = findBooleanByKey(Constant.PREF_COLLECT_ENERGY_NOTIFICATION);
             canCollectLaterTimeMap = new HashMap<>();
             /*if (collectEnergyNotificationSwitch) {
                 canCollectLaterTimeMap = new HashMap<>();
@@ -410,7 +429,7 @@ public class AliMobileAutoCollectEnergyManager {
                 for (int i = 0; i < optJSONArray.length(); i++) {
                     int presentCollectedEnergy = optJSONArray.getJSONObject(i).optInt("collectedEnergy");
                     collectedEnergy += presentCollectedEnergy;
-                    if (findSwitchByKey(Constant.PREF_SAVE_COLLECT_RECORD)) {
+                    if (findBooleanByKey(Constant.PREF_SAVE_COLLECT_RECORD)) {
                         saveCollectRecord(displayName, presentCollectedEnergy, DaoConstant.CollectRecord.OPERATE_COLLECT_ENERGY);
                     }
                 }
@@ -467,7 +486,7 @@ public class AliMobileAutoCollectEnergyManager {
                 for (int i = 0; i < optJSONArray.length(); i++) {
                     int presentCollectedEnergy = optJSONArray.getJSONObject(i).optInt("collectedEnergy");
                     helpCollect += presentCollectedEnergy;
-                    if (findSwitchByKey(Constant.PREF_SAVE_COLLECT_RECORD)) {
+                    if (findBooleanByKey(Constant.PREF_SAVE_COLLECT_RECORD)) {
                         saveCollectRecord(displayName, presentCollectedEnergy, DaoConstant.CollectRecord.OPERATE_HELP_COLLECT);
                     }
                 }
@@ -542,11 +561,11 @@ public class AliMobileAutoCollectEnergyManager {
     }
 
     private boolean isAutoCollectEnergy() {
-        return findSwitchByKey(Constant.PREF_AUTO_SWITCH_COLLECT_ENERGY);
+        return findBooleanByKey(Constant.PREF_AUTO_SWITCH_COLLECT_ENERGY);
     }
 
     private boolean isAutoHelpCollect() {
-        return findSwitchByKey(Constant.PREF_AUTO_SWITCH_HELP_COLLECT);
+        return findBooleanByKey(Constant.PREF_AUTO_SWITCH_HELP_COLLECT);
     }
 
     private void showToast(final String str) {
@@ -622,8 +641,13 @@ public class AliMobileAutoCollectEnergyManager {
         @Override
         protected void onOtherReceive(Context context, Intent intent) {
             if (Constant.Ga.ACTION_PREF_SWITCH.equals(intent.getAction())) {
-                if (intent.getIntExtra(Constant.Ga.EXTRA_VALUE_TYPE, -1) == Constant.Ga.ACTION_VALUE_TYPE_BOOLEAN) {
-                    switchMap.put(intent.getStringExtra(Constant.Ga.EXTRA_KEY), intent.getBooleanExtra(Constant.Ga.EXTRA_VALUE, false));
+                switch (intent.getIntExtra(Constant.Ga.EXTRA_VALUE_TYPE, -1)) {
+                    case Constant.Ga.ACTION_VALUE_TYPE_BOOLEAN:
+                        switchMap.put(intent.getStringExtra(Constant.Ga.EXTRA_KEY), intent.getBooleanExtra(Constant.Ga.EXTRA_VALUE, false));
+                        break;
+                    case Constant.Ga.ACTION_VALUE_TYPE_STRING:
+                        switchMap.put(intent.getStringExtra(Constant.Ga.EXTRA_KEY), intent.getStringExtra(Constant.Ga.EXTRA_VALUE));
+                        break;
                 }
             }
         }
@@ -753,7 +777,7 @@ public class AliMobileAutoCollectEnergyManager {
                                     @Override
                                     protected void afterHookedMethod(MethodHookParam methodHookParam) throws Throwable {
                                         super.afterHookedMethod(methodHookParam);
-                                        if (getInstance().findSwitchByKey(Constant.PREF_MAIN_SWITCH) && (getInstance().isAutoCollectEnergy() || getInstance().isAutoHelpCollect())) {
+                                        if (getInstance().findBooleanByKey(Constant.PREF_MAIN_SWITCH) && (getInstance().isAutoCollectEnergy() || getInstance().isAutoHelpCollect())) {
                                             Object result = methodHookParam.getResult();
                                             if (result != null) {
                                                 String str = (String) result.getClass().getMethod("getResponse", new Class[0]).invoke(result, new Object[0]);
